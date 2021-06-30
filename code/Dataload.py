@@ -4,6 +4,7 @@ import glob
 import os
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 class Fingervein_Dataset(Dataset):
     def __init__(self,img_path):
@@ -14,8 +15,14 @@ class Fingervein_Dataset(Dataset):
         return len(self.imgs)
     def __getitem__(self, index):
         img= Image.open(self.imgs[index])
-        return {'image':img,'label':self.labels[index]}
+        trans= transforms.Compose([transforms.ToTensor()])
+        tensor_img=trans(img)
+        print(self.imgs[index])
+        return tensor_img,self.labels[index]
 
+# file_path='D:\prlab\class\\2020-1(machin_learning)\data\\train\\real\\*.jpg'
+# file_list=glob.glob(os.path.join(file_path))
+# Fingervein_Dataset(file_list).__getitem__(0)
 
 
 

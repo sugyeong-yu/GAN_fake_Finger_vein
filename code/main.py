@@ -19,9 +19,6 @@ class Generator(nn.Module):
                                  *self.block(512,1024),
                                  nn.Linear(1024,int(np.prod(self.img_size))), # imgsize 다 곱한거 만큼 출력 (원소간의곱)
                                  nn.Tanh())
-    def random_noise(self,mu,sigma):
-        noise=torch.Tensor(np.random.normal(0, 1, (self.img_size[0], self.latent_dim))) # 왜 2차원?
-        return noise
     def block(self,in_dim,out_dim,normalize=True):
         layers=[]
         layers.append(nn.Linear(in_dim,out_dim))
@@ -29,9 +26,10 @@ class Generator(nn.Module):
             layers.append(nn.BatchNorm1d(out_dim,0.8)) # 왜0.8인지는 모름 하이퍼파라미터
         layers.append(nn.LeakyReLU(0.2,inplace=True))
         return layers
-    def forward(self):
-        input = self.random_noise()
+    def forward(self,z):
+        input = z
         gen_img = self.model(input)
+        print('genimg size:', gen_img.size())
         gen_img = gen_img.view(gen_img.size(0),*self.img_size) # 크기확인해보기.
         return gen_img
 
