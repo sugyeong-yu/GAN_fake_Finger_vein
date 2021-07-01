@@ -29,7 +29,6 @@ class Generator(nn.Module):
     def forward(self,z):
         input = z
         gen_img = self.model(input)
-        print('genimg size:', gen_img.size())
         gen_img = gen_img.view(gen_img.size(0),*self.img_size) # 크기확인해보기.
         return gen_img
 
@@ -46,9 +45,9 @@ class Discriminator(nn.Module):
             nn.Sigmoid(),)
 
     def forward(self,img):
-        img_flat = img.view(self.img_size[0], -1)
-        classify = self.build_discriminator(img_flat)
-
+        img_flat = img.view(img.size(0), -1)
+        print("dis",img_flat.size(),int(np.prod(self.img_size)))
+        classify = self.model(img_flat)
         return classify
 
 
