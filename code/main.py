@@ -46,7 +46,7 @@ class Discriminator(nn.Module):
 
     def forward(self,img):
         img_flat = img.view(img.size(0), -1)
-        print("dis",img_flat.size(),int(np.prod(self.img_size)))
+        #print("dis",img_flat.size(),int(np.prod(self.img_size)))
         classify = self.model(img_flat)
         return classify
 

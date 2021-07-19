@@ -15,9 +15,11 @@ class Fingervein_Dataset(Dataset):
         return len(self.imgs)
     def __getitem__(self, index):
         img= Image.open(self.imgs[index])
-        trans= transforms.Compose([transforms.ToTensor()])
+        trans= transforms.Compose([transforms.Resize((80,60)),
+                                   transforms.Grayscale(num_output_channels=1),
+                                   transforms.ToTensor()])
         tensor_img=trans(img)
-        #print(self.imgs[index])
+        #print(tensor_img.size())
         return tensor_img,self.labels[index]
 
 # file_path='D:\prlab\class\\2020-1(machin_learning)\data\\train\\real\\*.jpg'
