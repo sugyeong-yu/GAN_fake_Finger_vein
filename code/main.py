@@ -24,7 +24,7 @@ class Generator(nn.Module):
         layers.append(nn.Linear(in_dim,out_dim))
         if normalize :
             layers.append(nn.BatchNorm1d(out_dim,0.8)) # 왜0.8인지는 모름 하이퍼파라미터
-        layers.append(nn.LeakyReLU(0.2,inplace=True))
+        layers.append(nn.LeakyReLU(0.2))
         return layers
     def forward(self,z):
         input = z
@@ -37,11 +37,15 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         self.img_size=img_size
         self.latent_dim=latent_dim
-        self.model = nn.Sequential(nn.Linear(int(np.prod(self.img_size)), 512),
+        self.model = nn.Sequential(nn.Linear(int(np.prod(self.img_size)), 1024),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(1024, 512),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(512, 256),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(256, 1),
+            nn.Linear(256, 128),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(128, 1),
             nn.Sigmoid(),)
 
     def forward(self,img):
@@ -49,6 +53,4 @@ class Discriminator(nn.Module):
         #print("dis",img_flat.size(),int(np.prod(self.img_size)))
         classify = self.model(img_flat)
         return classify
-
-
 

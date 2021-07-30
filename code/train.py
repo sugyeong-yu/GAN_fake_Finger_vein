@@ -11,13 +11,13 @@ from pytorchtools import EarlyStopping
 
 
 # 파라미터설정
-lr=0.01
+lr=0.05
 (b1,b2)=0.9,0.999
 batch_size=64
-n_epoch=200
-img_size=(1,80,60)
+n_epoch=50
+img_size=(1,480,640)
 latent_dim=100
-earlystop_patient=5
+earlystop_patient=7
 save_path='D:\study\sugyeong_github\GAN_fake_Finger_vein\model\\'
 
 # Data path설정
@@ -35,10 +35,11 @@ discriminator = Discriminator(img_size)
 
 adversarial_loss = torch.nn.BCELoss()
 G_optimizer = torch.optim.Adam(generator.parameters(),lr=lr,betas=(b1,b2))
-D_optimizer = torch.optim.Adam(discriminator.parameters(),lr=lr,betas=(b1,b2))
+D_optimizer = torch.optim.Adam(discriminator.parameters(),lr=0.01,betas=(b1,b2))
 
 earlystopping = EarlyStopping(patience=earlystop_patient,verbose=True)
-val_loss = []
+val_gen_loss = []
+val_disc_loss = []
 gen_loss=[]
 disc_loss=[]
 # Train
@@ -49,20 +50,18 @@ for epoch in range(n_epoch):
         real_imgs=imgs
 
         # G와 D를 번걸아가며 훈련함
+        discriminator.train()
         generator.train()
 
-        ## train G (G로 만든 이미지 > D가 판별 > Loss계산 > 갱신)
-
-        G_optimizer.zero_grad()
         noise = torch.Tensor(np.random.normal(0, 1, (imgs.size(0), latent_dim)))  # 왜 2차원?
-        gen_imgs= generator(noise) #gen_imgs.size() = (8,640,480)
-        print(discriminator(gen_imgs))
-        g_loss=adversarial_loss(discriminator(gen_imgs),real_labels)
-        #loss, 가중치 갱신
+        gen_imgs = generator(noise)  # gen_imgs.size() = (8,640,480)
+        ## train G (G로 만든 이미지 > D가 판별 > Loss계산 > 갱신)
+        G_optimizer.zero_grad()
+        g_loss = adversarial_loss(discriminator(gen_imgs), real_labels)
+        # loss, 가중치 갱신
         g_loss.backward()
         G_optimizer.step()
 
-        discriminator.train()
         # train_D (real, fake 구별하기)
         D_optimizer.zero_grad()
         d_real_loss = adversarial_loss(discriminator(real_imgs),real_labels)
@@ -73,15 +72,16 @@ for epoch in range(n_epoch):
         d_loss.backward()
         D_optimizer.step()
 
-        gen_loss.append(g_loss)
-        disc_loss.append(d_loss)
+        gen_loss.append(g_loss.item())
+        disc_loss.append(d_loss.item())
+
         print(
-            "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
-            % (epoch, n_epoch, i, len(train_set), d_loss, g_loss)
+            "[Epoch %d/%d] [Batch %d/%d] [D loss: real- %f,fake- %f] [G loss: %f]"
+            % (epoch, n_epoch, i, len(train_set), d_real_loss.item(),d_fake_loss.item(), g_loss.item())
         )
     print(
         "******[Epoch %d/%d] [D loss: %f] [G loss: %f]******"
-        % (epoch, n_epoch, np.average(gen_loss), np.average(disc_loss))
+        % (epoch, n_epoch, np.average(disc_loss),np.average(gen_loss))
     )
     # validation
     generator.eval()
@@ -97,19 +97,19 @@ for epoch in range(n_epoch):
 
             val_gloss=adversarial_loss(discriminator(gen_valid_imgs),real_labels)
             val_dloss=(adversarial_loss(discriminator(val_imgs),real_labels)+adversarial_loss(discriminator(gen_valid_imgs),fake_labels))/2
-            print("validation loss D{},G{}".format(val_dloss,val_gloss))
+            print("validation loss D-{},G-{}".format(val_dloss.item(),val_gloss.item()))
 
-            val_loss.append(val_gloss)
+            val_gen_loss.append(val_gloss.item())
+            val_disc_loss.append(val_dloss.item())
+            save_image(gen_valid_imgs,"D:\study\sugyeong_github\GAN_fake_Finger_vein\\val_imgs\\"+str(i)+str(epoch)+'.jpg')
 
-            save_image(gen_valid_imgs,"D:\study\sugyeong_github\GAN_fake_Finger_vein\\val_imgs\\"+str(i)+'.jpg')
+    valid_gen_loss=np.average(val_gen_loss)
+    valid_disc_loss=np.average(val_disc_loss)
+    print("****[epoch %d validation g_loss %f]****" % (epoch,valid_gen_loss))
+    print("****[epoch %d validation d_loss %f]****" % (epoch,valid_disc_loss))
 
-    valid_loss=np.average(val_loss)
-    print("****[validation g_loss %f]****" % valid_loss)
-    earlystopping(valid_loss,generator)
+    # loss decrease하면 model저장
+    earlystopping(valid_gen_loss,generator,discriminator,path=save_path+str(epoch)+"-"+str(valid_gen_loss)+","+str(valid_disc_loss))
     if earlystopping.early_stop:
         print("Early stopping")
         break
-
-# 훈련마친후 모델저장
-torch.save(generator.state_dict(),save_path+"generator.pt")
-torch.save(discriminator.state_dict(),save_path+"discriminator.pt")
