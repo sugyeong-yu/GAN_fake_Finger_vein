@@ -2,6 +2,12 @@
 GAN을 이용한 fake Fingervein image 생성하기
 - 두가지 모델을 사용해봄
   - GAN, DCGAN
+## Protocol
+1. 실제 지정맥영상 취득
+2. 영상으로부터 frame 취득
+3. DCGAN의 입력으로 노이즈 / 실제지정맥 frame을 사용
+4. 모델학습
+5. 학습된 DCGAN의 Generator로 부터 위조지정맥 이미지 생성
 ## 모델 설명
 - GAN 사용 시 Discriminator와 Generator 간의 학습이 잘 이루어 지지 않음.
   - 부정확한 이미지 생성 및 loss가 감소하지 않는 등 
