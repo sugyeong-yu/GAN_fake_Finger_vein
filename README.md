@@ -1,4 +1,4 @@
-# GAN_fake_Finger_vein
+# GAN_Fake_Finger_vein
 GAN을 이용한 fake Fingervein image 생성하기
 - 두가지 모델을 사용해봄
   - GAN, DCGAN
