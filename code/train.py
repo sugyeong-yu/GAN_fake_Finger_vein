@@ -15,7 +15,7 @@ from pytorchtools import EarlyStopping
 lr=0.05
 (b1,b2)=0.9,0.999
 batch_size=64
-n_epoch=100
+n_epoch=150
 img_size=(1,64,64)
 latent_dim=100
 earlystop_patient=1000
@@ -100,7 +100,6 @@ for epoch in range(n_epoch):
         # train_D (real, fake 구별하기)
         D_optimizer.zero_grad()
         d_real_loss = adversarial_loss(discriminator(real_imgs),real_labels)
-
         d_fake_loss=adversarial_loss(discriminator(gen_imgs.detach()),fake_labels)
         d_loss=(d_real_loss+d_fake_loss)/2
         #가중치 갱신
