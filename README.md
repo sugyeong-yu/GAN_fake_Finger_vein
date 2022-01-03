@@ -1,7 +1,6 @@
 # GAN_Fake_Finger_vein
 GAN을 이용한 fake Fingervein image 생성하기
-- 두가지 모델을 사용해봄
-  - GAN, DCGAN
+## 목적 및 필요성
 ## Protocol
 1. 실제 지정맥영상 취득
 2. 영상으로부터 frame 취득
