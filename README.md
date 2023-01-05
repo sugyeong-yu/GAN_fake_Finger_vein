@@ -23,7 +23,8 @@ GAN을 이용한 fake Fingervein image 생성하기
 
 ## test
 - real 지정맥 이미지\
-![image](![image](https://user-images.githubusercontent.com/70633080/210711547-8f780fae-729b-4ebf-a011-b607e97bbb06.png))
+![캡처](https://user-images.githubusercontent.com/70633080/210711859-519e8aaa-ee7c-4c1f-93ae-87baa083722a.PNG)
+
 - 생성된 fake 지정맥 이미지\
 ![0](https://user-images.githubusercontent.com/70633080/127965412-eb0e7e87-e849-4638-a28a-69f9a2539869.jpg)
 ### [참고자료]
